@@ -6,6 +6,7 @@ WIDTH = 1200
 HEIGHT = 800
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 def draw():
+    screen = pg.display.set_mode((WIDTH, HEIGHT))
     r = pg.Rect((WIDTH - 600) // 2, (HEIGHT - 600) // 2, 600, 600)
     pg.draw.rect(screen, (200, 100, 90), r, 0)
     r1 = pg.Rect((WIDTH - 600) // 2 + 195, (HEIGHT - 600) // 2, 10, 600)
