@@ -1,5 +1,4 @@
 import pygame as pg
-import tensorflow as tf
 import numpy as np
 import pygame.time
 
@@ -7,9 +6,11 @@ pg.init()
 WIDTH = 1200
 HEIGHT = 800
 clock = pygame.time.Clock()
-screen = pg.display.set_mode((WIDTH, HEIGHT))
+Screen = pg.display.set_mode((WIDTH, HEIGHT))
+screen = pg.Surface((WIDTH, HEIGHT))
+screen.fill((0,0,0))
 def draw():
-    screen = pg.display.set_mode((WIDTH, HEIGHT))
+    screen.fill((0,0,0))
     r = pg.Rect((WIDTH - 600) // 2, (HEIGHT - 600) // 2, 600, 600)
     pg.draw.rect(screen, (200, 100, 90), r, 0)
     r1 = pg.Rect((WIDTH - 600) // 2 + 195, (HEIGHT - 600) // 2, 10, 600)
@@ -110,19 +111,18 @@ def victory():
 saluty = [pg.image.load("1.png"), pg.image.load("2.png"), pg.image.load("3.png"), pg.image.load("4.png"), pg.image.load("5.png"), pg.image.load("6.png"), pg.image.load("7.png"), pg.image.load("8.png"), pg.image.load("9.png"), pg.image.load("10.png"), pg.image.load("11.png"), pg.image.load("12.png"), pg.image.load("13.png"), pg.image.load("14.png"), pg.image.load("15.png")]
 salutt = True
 k = 0
-d = 0
-a = [[300,300],[350,350],[400,300],[300,400],[500,290],[500,500],[450,300],[300,300],[320,400],[400,400],[350,370],[380,434],[340,400],[300,430],[400,400],[350,430]]
+dt = 0
+timer = 0
+ar = [[300,300],[350,350],[400,300],[300,400],[500,290],[500,500],[450,300],[300,300],[320,400],[400,400],[350,370],[380,434],[340,400],[300,430],[400,400],[350,430]]
 def salut():
-    global k, d
-    while salutt:
-       screen.blit(saluty[k], a[d])
-       if k==14:
-           k=0
-           d+=1
-       else:
-           k+=1
-           pg.display.update()
-       clock.tick(10)
+    global k, dt
+    Screen.blit(saluty[k//3], ar[dt])
+    if k==42:
+        k=0
+        dt+=1
+    else:
+        k+=1
+
 while doing:
     pg.display.flip()
     for event in pg.event.get():
@@ -130,5 +130,9 @@ while doing:
             doing = False
     for bu in buttons:
         bu.process()
-    salut()
+
+    Screen.blit(screen, (0,0))
+    if not can_play:
+        salut()
+    clock.tick(30)
 pg.quit()
