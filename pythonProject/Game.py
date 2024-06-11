@@ -1,5 +1,5 @@
 import pygame as pg
-#import tensorflow as tf
+import tensorflow as tf
 import numpy as np
 pg.init()
 WIDTH = 1200
