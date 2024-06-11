@@ -21,7 +21,7 @@ def draw():
     r4 = pg.Rect((WIDTH - 600) // 2, (HEIGHT - 600) // 2 + 395, 600, 10)
     pg.draw.rect(screen, (255, 255, 255), r4, 0)
 class Button():
-    def __init__(self, x, y, width, height, onclickFunction=None, onePress=False, index = 0):
+    def __init__(self, x, y, width, height, onclickFunction=None, onePress=False, index = 0, text = ''):
         self.x = x
         self.y = y
         self.width = width
@@ -30,9 +30,18 @@ class Button():
         self.onePress = onePress
         self.alreadyPressed = False
         self.index = index
+        self.font = pg.font.SysFont('Arial', 40)
         self.buttonSurface = pg.Surface((self.width, self.height))
         self.buttonRect = pg.Rect(self.x, self.y, self.width, self.height)
         pg.draw.rect(screen, (255, 0, 0), self.buttonRect, 1)
+        self.text = text
+        self.buttonSurf = self.font.render(text, True, (70, 70, 70))
+        if self.text != '':
+            self.buttonSurface.blit(self.buttonSurf, [
+                self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
+                self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
+            ])
+            screen.blit(self.buttonSurface, self.buttonRect)
     def process(self):
         mousePos = pg.mouse.get_pos()
         if self.buttonRect.collidepoint(mousePos):
@@ -44,6 +53,7 @@ class Button():
                     self.alreadyPressed = True
             else:
                 self.alreadyPressed = False
+
 
 n = 0
 a=[[325, 125], [525, 125], [725, 125], [325, 325], [525, 325], [725, 325], [325, 525], [525, 525], [725, 525]]
@@ -77,7 +87,7 @@ def validate(ind):
         Data[ind] += (2 - n % 2)
         if victory():
             can_play = False
-            replay = Button(50, 50, 80,40, clear, False, 0)
+            replay = Button(10, 50, 130,60, clear, False, 0, 'replay?')
             buttons.append(replay)
         return True
 def clear(i):
