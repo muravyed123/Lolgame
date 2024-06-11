@@ -27,11 +27,49 @@ for i in range(0,9):
     krestik(-0, i)
 
 doing = True
+class Button():
+    def __init__(self, x, y, width, height, onclickFunction=None, onePress=False, index = 0):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.onclickFunction = onclickFunction
+        self.onePress = onePress
+        self.alreadyPressed = False
+        self.index = index
+
+        self.buttonSurface = pg.Surface((self.width, self.height))
+        self.buttonRect = pg.Rect(self.x, self.y, self.width, self.height)
+        pg.draw.rect(screen, (255,0,0), self.buttonRect, 5)
+
+
+    def process(self):
+        mousePos = pg.mouse.get_pos()
+
+        if self.buttonRect.collidepoint(mousePos):
+            if pg.mouse.get_pressed(num_buttons=3)[0]:
+
+                if self.onePress:
+                    self.onclickFunction(self.index)
+                elif not self.alreadyPressed:
+                    self.onclickFunction(self.index)
+                    self.alreadyPressed = True
+            else:
+                self.alreadyPressed = False
+doing = True
+buttons = []
+def validate(ind):
+    print(ind)
+for i in range(9):
+    but = Button(300 + i%3*200, 100 + i//3 * 200, 200, 200, validate, False, i)
+    buttons.append(but)
 while doing:
     pg.display.flip()
     for event in pg.event.get():
         if event.type == pg.QUIT:
             doing = False
+    for b in buttons:
+        b.process()
 
 pg.quit()
 
