@@ -33,6 +33,7 @@ for i in range (9):
     krestik(0, i)
     krestik(1, i)
 
+
 doing = True
 while doing:
     pg.display.flip()
