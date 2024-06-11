@@ -1,9 +1,12 @@
 import pygame as pg
 import tensorflow as tf
 import numpy as np
+import pygame.time
+
 pg.init()
 WIDTH = 1200
 HEIGHT = 800
+clock = pygame.time.Clock()
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 def draw():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -104,7 +107,22 @@ def victory():
         if Data[i[0]] + Data[i[1]] + Data[i[2]] == 9:
             return True
     return False
-
+saluty = [pg.image.load("1.png"), pg.image.load("2.png"), pg.image.load("3.png"), pg.image.load("4.png"), pg.image.load("5.png"), pg.image.load("6.png"), pg.image.load("7.png"), pg.image.load("8.png"), pg.image.load("9.png"), pg.image.load("10.png"), pg.image.load("11.png"), pg.image.load("12.png"), pg.image.load("13.png"), pg.image.load("14.png"), pg.image.load("15.png")]
+salutt = True
+k = 0
+d = 0
+a = [[300,300],[350,350],[400,300],[300,400],[500,290],[500,500],[450,300],[300,300],[320,400],[400,400],[350,370],[380,434],[340,400],[300,430],[400,400],[350,430]]
+def salut():
+    global k, d
+    while salutt:
+       screen.blit(saluty[k], a[d])
+       if k==14:
+           k=0
+           d+=1
+       else:
+           k+=1
+           pg.display.update()
+       clock.tick(10)
 while doing:
     pg.display.flip()
     for event in pg.event.get():
@@ -112,5 +130,5 @@ while doing:
             doing = False
     for bu in buttons:
         bu.process()
-
+    salut()
 pg.quit()
