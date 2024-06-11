@@ -6,8 +6,8 @@ WIDTH = 1200
 HEIGHT = 800
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 
-r = pg.Rect(50, 50, 100, 200)
-pg.draw.rect(screen, (255, 0, 0), r, 0)
+r = pg.Rect((WIDTH - 600)//2, (HEIGHT - 600)//2, 600, 600)
+pg.draw.rect(screen, (200, 130, 90), r, 0)
 doing = True
 while doing:
     pg.display.flip()
