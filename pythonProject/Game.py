@@ -23,7 +23,8 @@ def krestik(n, i):
         pg.draw.line(screen, (255, 255, 255), (a[i][0]-7, a[i][1]), (b[i][0]-7, b[i][1]),7)
         pg.draw.line(screen, (0, 0, 255), (a[i][0], a[i][1]), (b[i][0], b[i][1]), 7)
         pg.draw.line(screen, (255, 0, 0), (a[i][0]+7, a[i][1]), (b[i][0]+7, b[i][1]), 7)
-krestik(0, 0)
+for i in range(0,9):
+    krestik(-0, i)
 
 doing = True
 while doing:
