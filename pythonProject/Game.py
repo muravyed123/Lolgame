@@ -1,14 +1,19 @@
 import pygame as pg
 import numpy as np
 import pygame.time
+import Proga as pr
+import random
 
 pg.init()
 WIDTH = 1200
 HEIGHT = 800
+PROGA_PLAIT = True
 clock = pygame.time.Clock()
 Screen = pg.display.set_mode((WIDTH, HEIGHT))
 screen = pg.Surface((WIDTH, HEIGHT))
 screen.fill((0,0,0))
+Alldata1 = []
+Alldata2 = []
 def draw():
     screen.fill((0,0,0))
     r = pg.Rect((WIDTH - 600) // 2, (HEIGHT - 600) // 2, 600, 600)
@@ -46,7 +51,7 @@ class Button():
     def process(self):
         mousePos = pg.mouse.get_pos()
         if self.buttonRect.collidepoint(mousePos):
-            if pg.mouse.get_pressed(num_buttons=3)[0]:
+            if pg.mouse.get_pressed(num_buttons=3)[0] and can_play:
                 if self.onePress:
                     self.onclickFunction(self.index)
                 elif not self.alreadyPressed:
@@ -74,11 +79,10 @@ doing = True
 buttons = []
 Data = [0]*9
 last = -1
-can_play = True
+moves = []
+can_play = not PROGA_PLAIT
 def validate(ind):
     global n, last, can_play
-    if not can_play:
-        return False
     if Data[ind] == 3 or (Data[ind] != 0 and (Data[ind]-n) % 2 != 0) or ind == last:
         return False
     else:
@@ -86,18 +90,25 @@ def validate(ind):
         n += 1
         last = ind
         Data[ind] += (2 - n % 2)
+        moves.append(ind)
         if victory():
             can_play = False
             replay = Button(10, 50, 130,60, clear, False, 0, 'replay?')
             buttons.append(replay)
+            if n % 2 == 0:
+                screen.blit(text1, (350, 250))
+            if n % 2 == 1:
+                screen.blit(text, (450, 250))
         return True
 def clear(i):
-    global Data, buttons, last, can_play
+    global Data, buttons, last, can_play, moves, n
     draw()
     Data = [0]*9
     buttons = []
     last = -1
-    can_play = True
+    can_play = not PROGA_PLAIT
+    moves = []
+    n = 0
     for i in range(9):
         but = Button(300 + i % 3 * 200, 100 + i // 3 * 200, 200, 200, validate, False, i)
         buttons.append(but)
@@ -116,12 +127,41 @@ timer = 0
 ar = [[300,300],[350,350],[400,300],[300,400],[500,290],[500,500],[450,300],[300,300],[320,400],[400,400],[350,370],[380,434],[340,400],[300,430],[400,400],[350,430]]
 def salut():
     global k, dt
-    Screen.blit(saluty[k//3], ar[dt])
+    Screen.blit(saluty[k//3], ar[dt%16])
     if k==42:
         k=0
         dt+=1
     else:
         k+=1
+tim = 0
+def restart_game(how, move):
+    global Alldata1, Alldata2
+    datax, datay = pr.make_data(moves, how, move)
+    if len(Alldata1) >= 5:
+        pr.train_model(Alldata1, Alldata2)
+        Alldata1 = []
+        Alldata2 = []
+    else:
+        for i in range(len(datax)):
+            Alldata1.append(datax[i])
+            Alldata2.append(datay[i])
+    clear(0)
+    #validate(random.randint(0, 8))
+def real_move():
+    global tim
+    tim += 1
+    if tim == 2:
+        tim = 0
+        mov = pr.make_move(Data, last, n)
+        print(mov)
+        if not validate(mov):
+            moves.append(mov)
+            move = 0
+            for i in range(9):
+                if Data[i] == 0:
+                    move = i
+                    break
+            restart_game(False, move)
 font = pygame.font.SysFont('couriernew', 40)
 text = font.render(str('Russia winner'), True, (128, 0, 255))
 text1 = font.render(str('Russian Empire winner'), True, (128, 0, 255))
@@ -130,16 +170,14 @@ while doing:
     pg.display.flip()
     for event in pg.event.get():
         if event.type == pg.QUIT:
+            pr.save_model('now_model')
             doing = False
     for bu in buttons:
         bu.process()
 
     Screen.blit(screen, (0,0))
     if not can_play:
-        if n % 2 == 0:
-            screen.blit(text1, (350, 250))
-        if n % 2 == 1:
-            screen.blit(text, (450, 250))
-        salut()
+        #salut()
+        real_move()
     clock.tick(30)
 pg.quit()
