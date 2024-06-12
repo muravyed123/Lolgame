@@ -122,6 +122,9 @@ def salut():
         dt+=1
     else:
         k+=1
+font = pygame.font.SysFont('couriernew', 40)
+text = font.render(str('Russia winner'), True, (128, 0, 255))
+text1 = font.render(str('Russian Empire winner'), True, (128, 0, 255))
 
 while doing:
     pg.display.flip()
@@ -133,6 +136,10 @@ while doing:
 
     Screen.blit(screen, (0,0))
     if not can_play:
+        if n % 2 == 0:
+            screen.blit(text1, (350, 250))
+        if n % 2 == 1:
+            screen.blit(text, (450, 250))
         salut()
     clock.tick(30)
 pg.quit()
