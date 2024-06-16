@@ -12,8 +12,10 @@ clock = pygame.time.Clock()
 Screen = pg.display.set_mode((WIDTH, HEIGHT))
 screen = pg.Surface((WIDTH, HEIGHT))
 screen.fill((0,0,0))
-Alldata1 = []
-Alldata2 = []
+Alldata11 = []
+Alldata12 = []
+Alldata21 = []
+Alldata22 = []
 def draw():
     screen.fill((0,0,0))
     r = pg.Rect((WIDTH - 600) // 2, (HEIGHT - 600) // 2, 600, 600)
@@ -135,16 +137,21 @@ def salut():
         k+=1
 tim = 0
 def restart_game(how, move):
-    global Alldata1, Alldata2
-    datax, datay = pr.make_data(moves, how, move)
-    if len(Alldata1) >= 5:
-        pr.train_model(Alldata1, Alldata2)
-        Alldata1 = []
-        Alldata2 = []
+    global Alldata11, Alldata12, Alldata21, Alldata22
+    datax1, datay1, datax2, datay2 = pr.make_data(moves, how, move)
+    if len(Alldata11) >= 10:
+        pr.train_model(Alldata11, Alldata12, Alldata21, Alldata22)
+        Alldata11 = []
+        Alldata12 = []
+        Alldata21 = []
+        Alldata22 = []
     else:
-        for i in range(len(datax)):
-            Alldata1.append(datax[i])
-            Alldata2.append(datay[i])
+        for i in range(len(datax1)):
+            Alldata11.append(datax1[i])
+            Alldata12.append(datay1[i])
+        for i in range(len(datax2)):
+            Alldata21.append(datax2[i])
+            Alldata22.append(datay2[i])
     clear(0)
     #validate(random.randint(0, 8))
 def real_move():

@@ -12,9 +12,9 @@ import pygame as pg
 import random
 pg.init()
 model = tf.keras.Sequential()
-model.add(Dense(1, activation='linear', input_dim=1))
+model.add(Dense(8, activation='linear', input_dim=2))
 model.add(Dense(1, activation='linear'))
-#model.compile(optimizer='AdaGrad', loss='binary_crossentropy', metrics=['accuracy'])
+#model.compile(optimizer='SGD', loss='binary_crossentropy', metrics=['accuracy'])
 early_stopping = tf.keras.callbacks.EarlyStopping(
     monitor='val_loss', # указывается параметр, по которому осуществляется ранняя остановка. Обычно это функция потреть на валидационном наборе (val_loss)
     patience=2, # количество эпох по истечении которых закончится обучение, если показатели не улучшатся
@@ -24,21 +24,26 @@ early_stopping = tf.keras.callbacks.EarlyStopping(
 model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss='binary_crossentropy', metrics=['accuracy'])
 Datax = []
 Datay = []
-def function(a):
-    return(a*10 + 5)
+def function(a, b):
+    return(a * 2 + b ** 0.5)
 
 def give_data(count):
     global Datax, Datay
     Datax = []
     Datay = []
     for i in range(count):
-        a = random.randint(0,100)
-        Datax.append(a/2000)
-        Datay.append(function(a)/2000)
+        a = random.randint(0, 100)
+        b = random.randint(0, 100)
+        Datax.append([a/1000, b/1000])
+        Datay.append(function(a, b)/1000)
 def train_model():
-    give_data(10000)
-    X_and = tf.constant(Datax, dtype=tf.float16)
-    Y_and = tf.constant(Datay, dtype=tf.float16)
+    #give_data(100000)
+    for i in range(0, 100):
+        for j in range(0, 100):
+            Datax.append([i/1000, j/1000])
+            Datay.append(function(i, j)/1000)
+    X_and = tf.constant(Datax, dtype=tf.float32)
+    Y_and = tf.constant(Datay, dtype=tf.float32)
     model.fit(
         X_and,  # Входные данные для обучения
         Y_and,  # Выходные данные для обучения
@@ -53,9 +58,10 @@ train_model()
 while doing:
     if timer == 5:
         a = random.randint(0, 100)
-        inputTens = tf.constant([a/2000], dtype=tf.float16)
-        f = model.predict(inputTens)[0][0] * 2000
-        print(a, 'results:', f, function(a), ':', abs(f - function(a)))
+        b = random.randint(0, 100)
+        inputTens = tf.constant([[a/1000, b/1000]], dtype=tf.float16)
+        f = model.predict(inputTens)[0][0] * 1000
+        print(a, b,  'results:', f, function(a, b), ':', abs(f - function(a, b)))
 
         timer = 0
     else:
