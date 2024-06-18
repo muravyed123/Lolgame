@@ -7,7 +7,7 @@ import random
 pg.init()
 WIDTH = 1200
 HEIGHT = 800
-PROG_PLAIT = True
+Mode = 1
 
 clock = pygame.time.Clock()
 Screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -22,6 +22,7 @@ n = 0
 
 
 def draw():
+    buttons = []
     screen.fill((0, 0, 0))
     r = pg.Rect((WIDTH - 600) // 2, (HEIGHT - 600) // 2, 600, 600)
     pg.draw.rect(screen, (200, 100, 90), r, 0)
@@ -33,6 +34,15 @@ def draw():
     pg.draw.rect(screen, (255, 255, 255), r3, 0)
     r4 = pg.Rect((WIDTH - 600) // 2, (HEIGHT - 600) // 2 + 395, 600, 10)
     pg.draw.rect(screen, (255, 255, 255), r4, 0)
+    b1 = Button(100, 300, 150, 50, change_mode, False, 11, 'K VS K')
+    b2 = Button(100, 400, 150, 50, change_mode, False, 12, 'K VS P')
+    b3 = Button(100, 500, 150, 50, change_mode, False, 13, 'P VS K')
+    b4 = Button(100, 600, 150, 50, change_mode, False, 14, 'P VS P')
+    buttons.append(b1)
+    buttons.append(b2)
+    buttons.append(b3)
+    buttons.append(b4)
+    return buttons
 
 
 class Button():
@@ -61,7 +71,10 @@ class Button():
     def process(self):
         mouse_pos = pg.mouse.get_pos()
         if self.buttonRect.collidepoint(mouse_pos):
-            if pg.mouse.get_pressed(num_buttons=3)[0] and can_play:
+            can_press = can_play
+            if self.index >= 10:
+                can_press = True
+            if pg.mouse.get_pressed(num_buttons=3)[0] and can_press:
                 if self.onePress:
                     self.onclickFunction(self.index)
                 elif not self.alreadyPressed:
@@ -75,6 +88,15 @@ a = [[325, 125], [525, 125], [725, 125], [325, 325], [525, 325], [725, 325], [32
 b = [[475, 275], [675, 275], [875, 275], [475, 475], [675, 475], [875, 475], [475, 675], [675, 675], [875, 675]]
 c = [[325, 275], [525, 275], [725, 275], [325, 475], [525, 475], [725, 475], [325, 675], [525, 675], [725, 675]]
 d = [[475, 125], [675, 125], [875, 125], [475, 325], [675, 325], [875, 325], [475, 525], [675, 525], [875, 525]]
+
+
+def change_mode(i):
+    i -= 10
+    global Mode, can_play
+    if Mode == i:
+        return False
+    Mode = i
+    clear(1)
 
 
 def krestik(n, i):
@@ -93,7 +115,7 @@ buttons = []
 Data = [0]*9
 last = -1
 moves = []
-can_play = not PROG_PLAIT
+can_play = False
 
 
 def validate(ind):
@@ -109,8 +131,8 @@ def validate(ind):
         moves.append(ind)
         if victory():
             can_play = False
-            if not PROG_PLAIT:
-                replay = Button(10, 50, 130, 60, clear, False, 0, 'replay?')
+            if Mode != 1:
+                replay = Button(10, 50, 130, 60, clear, False, 10, 'replay?')
                 buttons.append(replay)
             if sum(Data) == 0:
                 return True
@@ -123,13 +145,13 @@ def validate(ind):
 
 def clear(i):
     global Data, buttons, last, can_play, moves, n
-    draw()
+    buttons = draw()
     Data = [0]*9
-    buttons = []
     last = -1
-    can_play = not PROG_PLAIT
+    if Mode != 1:
+        can_play = True
     moves = []
-    if i == 1 and PROG_PLAIT:
+    if i == 1 and Mode == 1:
         if n % 2 == 0:
             screen.blit(text1, (350, 250))
         if n % 2 == 1:
@@ -147,7 +169,7 @@ def victory():
     all_conc = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]])
     for i in all_conc:
         if Data[i[0]] + Data[i[1]] + Data[i[2]] == 9:
-            if PROG_PLAIT:
+            if Mode == 1:
                 restart_game(True)
             return True
 
@@ -228,8 +250,16 @@ while doing:
         bu.process()
 
     Screen.blit(screen, (0, 0))
-    if not can_play:
-        # salut()
+    if Mode == 1:
         real_move()
+    elif Mode == 2:
+        if n % 2 == 0 and can_play:
+            real_move()
+    elif Mode == 3:
+        if n % 2 == 1 and can_play:
+            real_move()
+    else:
+        if not can_play:
+            salut()
     clock.tick(30)
 pg.quit()

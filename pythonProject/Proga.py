@@ -39,12 +39,15 @@ def make_data(moves, how_played):
             else:
                 how_to_move[moves[i]] = 1
         else:
-            how_to_move[moves[i]] = ((win - i) % 2 + len(moves)/20)/2
+            s = len(moves)/20
+            if len(moves) - i <= 2:
+                s = (win - i) % 2
+            how_to_move[moves[i]] = ((win - i) % 2 + s)/2
         if i % 2 == 0:
             Data_y1.append(how_to_move)
         else:
             Data_y2.append(how_to_move)
-        #print(pos, how_to_move)
+        print(pos, how_to_move)
         pos[moves[i]] += (1 + i % 2)
     return((Datatens1, Data_y1, Datatens2, Data_y2))
 
