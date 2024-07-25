@@ -5,20 +5,20 @@ import torch
 from torch import nn
 import json
 import math
-from torch.functional import F
+from matplotlib import pyplot as plt
 
 import gymnasium as gym
 
 from tqdm import tqdm
-AUTO_TRAIN = True
+AUTO_TRAIN = False
 
 GAMMA = 0.99
 EPS_START = 0.9
 EPS_END = 0.05
 EPS_DECAY = 1000
-BATCH_SIZE = 100
-TAU = 0.005
-LR = 0.0001
+BATCH_SIZE = 500
+TAU = 0
+LR = 0.001
 
 mean_ac = 0
 
@@ -29,6 +29,7 @@ device = torch.device(
 )
 count = 0
 sum_lens = 0
+
 
 def analyse(moves, how_played):
     global count, sum_lens, mean_ac
@@ -52,15 +53,15 @@ def analyse(moves, how_played):
     state = np.array(data) / 3
 
     count += 1
+    sum_lens += len(moves) + int(how_played) - 1
     mean_ac = round(sum_lens / count, 3)
-    sum_lens += len(moves) - int(how_played)
     if count == 100 and AUTO_TRAIN:
         loss1 = dqn_training(model1)
         loss2 = dqn_training(model2)
         print('len is ', sum_lens / 100, 'loss is', loss1, loss2)
     if count == 100:
         sum_lens = 0
-        count = 1
+        count = 0
 
 
 class DQNetworkModel(nn.Module):
@@ -102,15 +103,9 @@ class ReplayMemory(object):
         return len(self.memory)
 
 
-steps_done = 0
-
-
 def select_action(state, model):
-    global steps_done
     sample = random.random()
-    eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-                    math.exp(-1. * steps_done / EPS_DECAY)
-    steps_done += 1
+    eps_threshold = math.exp(-1./ EPS_DECAY) * TAU
     if sample > eps_threshold:
         with torch.no_grad():
             return torch.argmax(model(state))
@@ -124,7 +119,7 @@ def new_model():
     model_1 = DQNetworkModel(10, 9).to(device)
     model_2 = DQNetworkModel(10, 9).to(device)
 
-    if 0:
+    if 1:
         model_1.load_state_dict(torch.load(name + '1'))
         model_2.load_state_dict(torch.load(name + '2'))
 
@@ -158,9 +153,32 @@ def load_data(name):
         arr = json.load(json_file)
         for i in arr:
             model2.memory.push(tuple(i[0]), i[1])
+
+
+def big_train(model, size=200):
+    loses = []
+    for i in range(size):
+        loss = dqn_training(model, 10)
+        loses.append(loss)
+        plt.figure(1)
+        durations_t = torch.tensor(loses, dtype=torch.float)
+        plt.clf()
+        plt.title('Training...')
+        plt.xlabel('Episode')
+        plt.ylabel('Losses')
+        plt.plot(durations_t.numpy())
+        # Take 100 episode averages and plot them too
+        if len(durations_t) >= 10:
+            means = durations_t.unfold(0, 10, 1).mean(1).view(-1)
+            means = torch.cat((torch.ones(9) * float(loses[0]), means))
+            plt.plot(means.numpy())
+
+        plt.pause(0.001)  # pause a bit so that plots are updated
+    return(loses[-1])
+
 def dqn_training(
     model,
-        epochs=25
+        epochs=100
 ):
     memory = model.memory
     optimizer = model.optimizer
@@ -198,21 +216,23 @@ def dqn_training(
     model.eval()
     return loss[-1]
 
+
 def make_move(Data, last, number):
     global nodes
-    data = np.array([0]*10)
+    data = np.array([0.0]*10)
     for i in range(len(Data)):
         data[i] = Data[i]/3
     if last == -1:
         last = 1
     data[-1] = last/8
     X = torch.tensor(data).float()
+    #print(X//0.1/10)
     with torch.no_grad():
         if number % 2 == 0:
-            preds = select_action(X//0.1*10, model1)  # select action based on epsilon greedy policy
+            preds = select_action(X//0.1/10, model1)  # select action based on epsilon greedy policy
 
         else:
-            preds = select_action(X//0.1*10, model2)  # select action based on epsilon greedy policy
+            preds = select_action(X//0.1/10, model2)  # select action based on epsilon greedy policy
     return int(preds)
 
 

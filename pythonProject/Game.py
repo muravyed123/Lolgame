@@ -129,10 +129,13 @@ def krestik(n, i):
 
 def train(number):
     global str_tex
+    func = Pr.dqn_training
+    if not Pr.AUTO_TRAIN:
+        func = Pr.big_train
     if number == 1:
-        loss = Pr.dqn_training(Pr.model1)
+        loss = func(Pr.model1)
     elif number == 2:
-        loss = Pr.dqn_training(Pr.model2)
+        loss = func(Pr.model2)
     if loss != None:
         str_tex = str(round(float(loss), 4))
     else:
